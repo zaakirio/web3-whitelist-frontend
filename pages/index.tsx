@@ -1,21 +1,21 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRef, useState, useEffect } from "react";
-import Web3Provider from "web3modal";
+import Web3Modal from "web3modal";
 import { providers, Contract } from "ethers";
 
 import styles from "../styles/Home.module.css";
 import { WHITELIST_CONTRACT_ADDRESS, abi } from "../constants";
 
 const Home: NextPage = () => {
-  const [walletState, setWalletState] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
   const [joinedWhitelist, setJoinedWhitelist] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
   const [whiteListCount, setWhiteListCount] = useState(0);
 
   const web3ModalRef = useRef<any>();
 
-  // Connects user to metamask, otherwise prompts signature
+  // Initiates provider, otherwise prompts signature
   const getProvider = async (requireSigner = false) => {
     // Provider required to interact with the blockchain - read balance/transactions/state/etc
     const provider = await web3ModalRef.current.connect();
@@ -34,6 +34,24 @@ const Home: NextPage = () => {
     return web3Provider;
   };
 
+  // Adds current connected wallet to the whitelist
+  const addToWhitelist = async () => {
+    try {
+      const signer = await getProvider(true);
+      const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
+      const tx = await contract.addToWhitelist();
+      setLoadingState(true);
+      // Wait for transaction to be mined
+      await tx.wait();
+      setLoadingState(false);
+      await getWhitelistCount();
+      setJoinedWhitelist(true);
+      console.log(`Transaction = ${tx}`);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Gets number of whitelisted addresses
   const getWhitelistCount = async () => {
     const provider = await getProvider();
@@ -48,7 +66,7 @@ const Home: NextPage = () => {
     try {
       const signer = await getProvider(true);
       const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
-      const address = await signer.getAddress<any>();
+      const address = await signer.getAddress();
       // Call whitelisted address from contract
       const _joinedWhitelist = await contract.whitelistedAddresses(address);
       setJoinedWhitelist(_joinedWhitelist);
@@ -56,16 +74,42 @@ const Home: NextPage = () => {
       console.error(err);
     }
   };
-
+  // Connects wallet and performs whitelist check
   const connectWallet = async () => {
     try {
       await getProvider();
-      setWalletState(true);
+      setWalletConnected(true);
 
       isWhitelisted();
       getWhitelistCount();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const whitelistButton = () => {
+    if (walletConnected) {
+      if (joinedWhitelist) {
+        return (
+          <div className={styles.description}>
+            Thanks for joining the Whitelist!
+          </div>
+        );
+      } else if (loadingState) {
+        return <button className={styles.button}>Loading...</button>;
+      } else {
+        return (
+          <button onClick={addToWhitelist} className={styles.button}>
+            Join the Whitelist
+          </button>
+        );
+      }
+    } else {
+      return (
+        <button onClick={connectWallet} className={styles.button}>
+          Connect your wallet
+        </button>
+      );
     }
   };
 
@@ -83,7 +127,7 @@ const Home: NextPage = () => {
           <div className={styles.description}>
             {whiteListCount} have already joined the Whitelist
           </div>
-          {renderButton()}
+          {whitelistButton()}
         </div>
         <div>
           <img className={styles.image} src="./stock-img.svg" />
