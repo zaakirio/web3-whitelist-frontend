@@ -64,7 +64,7 @@ const Home: NextPage = () => {
   // Checks to see if address is whitelisted
   const isWhitelisted = async () => {
     try {
-      const signer = await getProvider(true);
+      const signer: any = await getProvider(true);
       const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
       const address = await signer.getAddress();
       // Call whitelisted address from contract
@@ -112,6 +112,18 @@ const Home: NextPage = () => {
       );
     }
   };
+
+  // If wallet is not connected, create a new instance of Web3Modal and connect to wallet
+  useEffect(() => {
+    if (!walletConnected) {
+      web3ModalRef.current = new Web3Modal({
+        network: "rinkeby",
+        providerOptions: {},
+        disableInjectedProvider: false,
+      });
+      connectWallet();
+    }
+  }, [walletConnected]);
 
   return (
     <div>
