@@ -39,7 +39,7 @@ const Home: NextPage = () => {
     try {
       const signer = await getProvider(true);
       const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
-      const tx = await contract.addToWhitelist();
+      const tx = await contract.addAddress();
       setLoadingState(true);
       // Wait for transaction to be mined
       await tx.wait();
@@ -57,7 +57,7 @@ const Home: NextPage = () => {
     const provider = await getProvider();
     const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, provider);
     // Call whitelisted count from contract
-    const count = await contract.getWhiteListCount();
+    const count = await contract.numAddresses();
     setWhiteListCount(count);
   };
 
@@ -68,7 +68,7 @@ const Home: NextPage = () => {
       const contract = new Contract(WHITELIST_CONTRACT_ADDRESS, abi, signer);
       const address = await signer.getAddress();
       // Call whitelisted address from contract
-      const _joinedWhitelist = await contract.whitelistedAddresses(address);
+      const _joinedWhitelist = await contract.allowedAddresses(address);
       setJoinedWhitelist(_joinedWhitelist);
     } catch (err) {
       console.error(err);

@@ -2,9 +2,9 @@ export const abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint8",
         name: "_maxAddresses",
-        type: "uint256",
+        type: "uint8",
       },
     ],
     stateMutability: "nonpayable",
@@ -41,9 +41,9 @@ export const abi = [
     name: "maxAddresses",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint8",
         name: "",
-        type: "uint256",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -54,13 +54,14 @@ export const abi = [
     name: "numAddresses",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint8",
         name: "",
-        type: "uint256",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
     type: "function",
   },
 ];
-export const WHITELIST_CONTRACT_ADDRESS = "0xFE91AF5652dcf7d8Ea77754126Ff22a8B4501b8f";
+export const WHITELIST_CONTRACT_ADDRESS =
+  "0xFE91AF5652dcf7d8Ea77754126Ff22a8B4501b8f";
